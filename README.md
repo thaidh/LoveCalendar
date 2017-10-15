@@ -1,2 +1,0 @@
-# LoveCalendar
-Billings Calendar
