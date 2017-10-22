@@ -50,17 +50,6 @@ public class MonthlyCalendarImpl {
         this.mFilterEventTypes = var1;
     }
 
-    
-    public final DateTime getMTargetDate() {
-        DateTime var10000 = this.mTargetDate;
-
-        return var10000;
-    }
-
-    public final void setMTargetDate( DateTime var1) {
-        this.mTargetDate = var1;
-    }
-
     public void updateMonthlyCalendar( DateTime targetDate, boolean filterEventTypes) {
         this.mFilterEventTypes = filterEventTypes;
         this.mTargetDate = targetDate;
@@ -84,79 +73,57 @@ public class MonthlyCalendarImpl {
 //        }), 4, (Object)null);
     }
 
-    // $FF: synthetic method
-    // $FF: bridge method
-    public void updateMonthlyCalendar$default(DateTime var1, boolean var2, int var3, Object var4) {
-        if((var3 & 2) != 0) {
-            var2 = true;
-        }
-
-        updateMonthlyCalendar(var1, var2);
-    }
-
-    public void getMonth( DateTime targetDate) {
-        updateMonthlyCalendar$default(targetDate, false, 2, (Object)null);
-    }
-
     public final void getDays() {
         if(this.days.isEmpty()) {
-            DateTime var10000 = this.mTargetDate;
+            DateTime dateTime = this.mTargetDate;
 
-            int currMonthDays = var10000.dayOfMonth().getMaximumValue();
-            var10000 = this.mTargetDate;
+            int currMonthDays = dateTime.dayOfMonth().getMaximumValue();
+            dateTime = this.mTargetDate;
 
-            int firstDayIndex = var10000.withDayOfMonth(1).getDayOfWeek();
+            int firstDayIndex = dateTime.withDayOfMonth(1).getDayOfWeek();
             if(!ContextKt.isSundayFirst) {
                 --firstDayIndex;
             }
 
-            var10000 = this.mTargetDate;
+            dateTime = this.mTargetDate;
 
-            int prevMonthDays = var10000.minusMonths(1).dayOfMonth().getMaximumValue();
+            int prevMonthDays = dateTime.minusMonths(1).dayOfMonth().getMaximumValue();
             boolean isThisMonth = false;
             int value = prevMonthDays - firstDayIndex + 1;
-            var10000 = this.mTargetDate;
+            dateTime = this.mTargetDate;
 
-            DateTime curDay = var10000;
-            int i = 0;
-
-            for(int var9 = this.DAYS_CNT; i < var9; ++i) {
+            DateTime curDay = dateTime;
+            for(int i = 0; i < DAYS_CNT; ++i) {
                 if(i < firstDayIndex) {
                     isThisMonth = false;
-                    var10000 = this.mTargetDate;
+                    dateTime = this.mTargetDate;
 
-                    var10000 = var10000.withDayOfMonth(1).minusMonths(1);
-                    curDay = var10000;
+                    dateTime = dateTime.withDayOfMonth(1).minusMonths(1);
+                    curDay = dateTime;
                 } else if(i == firstDayIndex) {
                     value = 1;
                     isThisMonth = true;
-                    var10000 = this.mTargetDate;
+                    dateTime = this.mTargetDate;
 
-                    curDay = var10000;
+                    curDay = dateTime;
                 } else if(value == currMonthDays + 1) {
                     value = 1;
                     isThisMonth = false;
-                    var10000 = this.mTargetDate;
+                    dateTime = this.mTargetDate;
 
-                    var10000 = var10000.withDayOfMonth(1).plusMonths(1);
-                    curDay = var10000;
+                    dateTime = dateTime.withDayOfMonth(1).plusMonths(1);
+                    curDay = dateTime;
                 }
 
-                boolean var13;
-                label69: {
-                    if(isThisMonth) {
-                        DateTime var10001 = this.mTargetDate;
+                boolean isToday = false;
+                if (isThisMonth) {
+                    DateTime curDate = this.mTargetDate;
 
-                        if(this.isToday(var10001, value)) {
-                            var13 = true;
-                            break label69;
-                        }
+                    if (this.isToday(curDate, value)) {
+                        isToday = true;
                     }
-
-                    var13 = false;
                 }
 
-                boolean isToday = var13;
                 DateTime newDay = curDay.withDayOfMonth(value);
                 String dayCode = Formatter.getDayCodeFromDateTime(newDay);
                 DayMonthly day = new DayMonthly(value, isThisMonth, isToday, dayCode, newDay.getWeekOfWeekyear(), new ArrayList());

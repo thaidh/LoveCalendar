@@ -1,45 +1,24 @@
-package com.thaidh.lovecalendar;
+package com.thaidh.lovecalendar.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
+import com.thaidh.lovecalendar.R;
 import com.thaidh.lovecalendar.adapter.MyMonthPagerAdapter;
 import com.thaidh.lovecalendar.calendar.helper.Formatter;
 
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     ViewPager mainViewPager;
-    TextView mTextMessage;
     MyMonthPagerAdapter pagerAdapter;
-
-//    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-//            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-//
-//        @Override
-//        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//            switch (item.getItemId()) {
-//                case R.id.navigation_home:
-//                    mTextMessage.setText(R.string.title_home);
-//                    return true;
-//                case R.id.navigation_dashboard:
-//                    mTextMessage.setText(R.string.title_dashboard);
-//                    return true;
-//                case R.id.navigation_notifications:
-//                    mTextMessage.setText(R.string.title_notifications);
-//                    return true;
-//            }
-//            return false;
-//        }
-//    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +26,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mainViewPager = findViewById(R.id.main_view_pager);
-//        pagerAdapter = new MyMonthPagerAdapter(getSupportFragmentManager());
-
-
-//        mTextMessage = (TextView) findViewById(R.id.message);
-//        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-//        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, EventComposeActivity.class));
+            }
+        });
     }
 
     @Override
@@ -67,8 +47,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fillMonthlyViewPager(String targetDay) {
-//        main_weekly_scrollview.beGone()
-//        calendar_fab.beVisible()
         ArrayList<String> codes = getMonths(targetDay);
         pagerAdapter = new MyMonthPagerAdapter(getSupportFragmentManager(), codes);
         mainViewPager.setAdapter(pagerAdapter);
