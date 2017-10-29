@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "820314567726",
+    "firebase_url": "https://lovecalendar-97019.firebaseio.com",
+    "project_id": "lovecalendar-97019",
+    "storage_bucket": "lovecalendar-97019.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820314567726:android:de4d27c90f2f2b55",
+        "android_client_info": {
+          "package_name": "com.thaidh.lovecalendar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "820314567726-re3fc1podarph8lr0208aucq69p3oiju.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thaidh.lovecalendar",
+            "certificate_hash": "701554e30e4dadc7e21e132746ee0c4922bad83f"
+          }
+        },
+        {
+          "client_id": "820314567726-f53upgsafc93fqhico5pe5fc2a1mcaup.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgTdzatErz6vYPmzET4-bZcKo9i9qe3js"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "820314567726-f53upgsafc93fqhico5pe5fc2a1mcaup.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

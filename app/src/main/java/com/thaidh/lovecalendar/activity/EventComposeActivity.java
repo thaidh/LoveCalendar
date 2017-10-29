@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import com.thaidh.lovecalendar.R;
 import com.thaidh.lovecalendar.calendar.model.Event;
 
-import dialog.IconPickerBottomSheet;
+import com.thaidh.lovecalendar.dialog.IconPickerBottomSheet;
 
 public class EventComposeActivity extends AppCompatActivity {
 

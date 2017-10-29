@@ -280,6 +280,10 @@
         This app is just one piece of a bigger series of apps. You can find the rest of them at http://www.simplemobiletools.com
     </string>
     <string name="title_activity_event_compose">EventComposeActivity</string>
+    <string name="sign_in_cancelled">SignInCancelled</string>
+    <string name="no_internet_connection">NoInternetConnection</string>
+    <string name="unknown_error">UnknownError</string>
+    <string name="unknown_sign_in_response">UnknownResponse</string>
 
     <!--
         Haven't found some strings? There's more at
