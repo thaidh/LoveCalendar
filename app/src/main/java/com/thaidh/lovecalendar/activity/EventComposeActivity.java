@@ -3,17 +3,29 @@ package com.thaidh.lovecalendar.activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.thaidh.lovecalendar.R;
+import com.thaidh.lovecalendar.calendar.helper.GlobalData;
 import com.thaidh.lovecalendar.calendar.model.Event;
-
+import com.thaidh.lovecalendar.database.EventRepository;
 import com.thaidh.lovecalendar.dialog.IconPickerBottomSheet;
 
-public class EventComposeActivity extends AppCompatActivity {
+public class EventComposeActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private static final String TAG = EventComposeActivity.class.getSimpleName();
+
+
 
     private Toolbar toolbar;
     private int eventType = Event.TYPE_BLEEDING;
@@ -24,6 +36,8 @@ public class EventComposeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_compose);
         previewIcon = findViewById(R.id.preview_icon);
+        previewIcon.setOnClickListener(this);
+
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setupToolbar();
@@ -50,18 +64,31 @@ public class EventComposeActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.action_save:
-//                Snackbar.make(toolbar, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-                showIconPickerDialog();
+                submitEvent();
                 break;
         }
         return true;
     }
 
+    void submitEvent() {
+        Event event = new Event(eventType, System.currentTimeMillis(), System.currentTimeMillis() + 3600 * 1000);
+
+        EventRepository.mEventQuery.getRef().push().setValue(event, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError error, DatabaseReference reference) {
+                if (error != null) {
+                    Log.e(TAG, "Failed to write message", error.toException());
+                } else {
+
+                }
+            }
+        });
+
+
+    }
+
     void showIconPickerDialog() {
         IconPickerBottomSheet mBottomSheetDialog = new IconPickerBottomSheet(this);
-//        View sheetView = getLayoutInflater().inflate(R.layout.dialog_icon_picker_layout, null);
-//        mBottomSheetDialog.setContentView(sheetView);
         mBottomSheetDialog.setIconPickerListener(new IconPickerBottomSheet.IconPickerListener() {
             @Override
             public void onIconClick(int index) {
@@ -103,6 +130,15 @@ public class EventComposeActivity extends AppCompatActivity {
                 break;
             case Event.TYPE_INFERCOURSE:
                 previewIcon.setImageResource(R.drawable.icon_infercourse);
+                break;
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.preview_icon:
+                showIconPickerDialog();
                 break;
         }
     }

@@ -1,15 +1,23 @@
 package com.thaidh.lovecalendar.calendar;
 
 import android.content.Context;
+import android.util.Log;
 
-import com.thaidh.lovecalendar.calendar.helper.ContextKt;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
+import com.thaidh.lovecalendar.calendar.helper.GlobalData;
 import com.thaidh.lovecalendar.calendar.helper.DateTimeKt;
 import com.thaidh.lovecalendar.calendar.helper.Formatter;
 import com.thaidh.lovecalendar.calendar.model.DayMonthly;
+import com.thaidh.lovecalendar.calendar.model.Event;
+import com.thaidh.lovecalendar.database.EventRepository;
 
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -59,7 +67,54 @@ public class MonthlyCalendarImpl {
         var10000 = this.mTargetDate;
 
         int endTS = DateTimeKt.seconds(var10000.plusMonths(1));
-//        DBHelper.getEvents$default(ContextKt.getDbHelper(this.mContext), startTS, endTS, 0, (Function1)(new Function1() {
+
+
+//        EventRepository.mEventQuery.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot eventSnapshot: dataSnapshot.getChildren()) {
+//                    Event event = eventSnapshot.getValue(Event.class);
+//                    Log.i("AAAAAA", "onDataChange: " + event.getType() + " " + event.getStartTime());
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+
+        EventRepository.mEventQuery.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+//                for (DataSnapshot eventSnapshot: dataSnapshot.getChildren()) {
+                    Event event = dataSnapshot.getValue(Event.class);
+                    Log.i("AAAAAA", "onChildAdded: " + event.getType() + " " + event.getStartTime());
+//                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+//        DBHelper.getEvents$default(GlobalData.getDbHelper(this.mContext), startTS, endTS, 0, (Function1)(new Function1() {
 //            // $FF: synthetic method
 //            // $FF: bridge method
 //            public Object invoke(Object var1) {
@@ -81,7 +136,7 @@ public class MonthlyCalendarImpl {
             dateTime = this.mTargetDate;
 
             int firstDayIndex = dateTime.withDayOfMonth(1).getDayOfWeek();
-            if(!ContextKt.isSundayFirst) {
+            if(!GlobalData.isSundayFirst) {
                 --firstDayIndex;
             }
 
@@ -142,7 +197,7 @@ public class MonthlyCalendarImpl {
 
     private final void markDaysWithEvents(final ArrayList days) {
         //todo handle mark event
-//        ContextKt.getDbHelper(this.mContext).getEventTypes((Function1)(new Function1() {
+//        GlobalData.getDbHelper(this.mContext).getEventTypes((Function1)(new Function1() {
 //            // $FF: synthetic method
 //            // $FF: bridge method
 //            public Object invoke(Object var1) {
@@ -244,7 +299,7 @@ public class MonthlyCalendarImpl {
         ArrayList var2;
         if(this.mFilterEventTypes) {
             //todo filter event
-//            List var10001 = ContextKt.getFilteredEvents(this.mContext, (List)events);
+//            List var10001 = GlobalData.getFilteredEvents(this.mContext, (List)events);
 //
 //            var2 = (ArrayList)var10001;
         } else {

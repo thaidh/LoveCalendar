@@ -27,13 +27,14 @@ public class IconPickerBottomSheet extends BottomSheetDialog {
         sheetView = getLayoutInflater().inflate(R.layout.dialog_icon_picker_layout, null);
         for (int i = 0; i < 10; i++) {
             final int index = i + 1;
-            View icon = findViewById(context.getResources().getIdentifier(String.format("icon_%d", (i + 1)), "id", context.getPackageName()));
+            View icon = sheetView.findViewById(context.getResources().getIdentifier(String.format("icon_%d", (i + 1)), "id", context.getPackageName()));
             icon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (iconPickerListener != null) {
                         iconPickerListener.onIconClick(index);
                     }
+                    dismiss();
                 }
             });
         }

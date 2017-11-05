@@ -1,9 +1,12 @@
 package com.thaidh.lovecalendar.calendar.model;
 
+import com.google.firebase.database.IgnoreExtraProperties;
+
 /**
  * Created by thaidh on 10/15/17.
  */
 
+@IgnoreExtraProperties
 public class Event {
     public static final int TYPE_BLEEDING = 1;
     public static final int TYPE_SPOTTING = 2;
@@ -17,4 +20,27 @@ public class Event {
     public static final int TYPE_INFERCOURSE = 10;
 
     int type;
+    long startTime;
+    long endTime;
+
+    public Event() {
+    }
+
+    public Event(int type, long start, long end) {
+        this.type = type;
+        this.startTime = start;
+        this.endTime = end;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
 }

@@ -21,7 +21,7 @@ import android.widget.TextView;
 import com.thaidh.lovecalendar.R;
 import com.thaidh.lovecalendar.calendar.MonthlyCalendar;
 import com.thaidh.lovecalendar.calendar.MonthlyCalendarImpl;
-import com.thaidh.lovecalendar.calendar.helper.ContextKt;
+import com.thaidh.lovecalendar.calendar.helper.GlobalData;
 import com.thaidh.lovecalendar.calendar.helper.Formatter;
 import com.thaidh.lovecalendar.calendar.model.DayMonthly;
 import com.thaidh.lovecalendar.customview.MyTextView;
@@ -107,7 +107,7 @@ public class MonthFragment extends Fragment implements MonthlyCalendar {
         top_left_arrow = mHolder.findViewById(R.id.top_left_arrow);
         top_right_arrow = mHolder.findViewById(R.id.top_right_arrow);
 
-        mSundayFirst = ContextKt.isSundayFirst;
+        mSundayFirst = GlobalData.isSundayFirst;
         mTextColor = ContextCompat.getColor(getContext(), R.color.default_text_color);
         mWeakTextColor = ColorUtils.setAlphaComponent(mTextColor, 100);
 
@@ -121,8 +121,8 @@ public class MonthFragment extends Fragment implements MonthlyCalendar {
     @Override
     public void onResume() {
         super.onResume();
-        if (ContextKt.isSundayFirst != mSundayFirst) {
-            mSundayFirst = ContextKt.isSundayFirst;
+        if (GlobalData.isSundayFirst != mSundayFirst) {
+            mSundayFirst = GlobalData.isSundayFirst;
             setupLabels();
         }
 
@@ -169,7 +169,7 @@ public class MonthFragment extends Fragment implements MonthlyCalendar {
     }
 
     private void updateDays(List<DayMonthly> days) {
-        boolean displayWeekNumbers = ContextKt.displayWeekNumbers;
+        boolean displayWeekNumbers = GlobalData.displayWeekNumbers;
         int len = days.size();
 
         if (week_num == null)
