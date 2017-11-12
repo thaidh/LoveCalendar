@@ -6,10 +6,9 @@ import android.util.Log;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
-import com.thaidh.lovecalendar.calendar.helper.GlobalData;
 import com.thaidh.lovecalendar.calendar.helper.DateTimeKt;
 import com.thaidh.lovecalendar.calendar.helper.Formatter;
+import com.thaidh.lovecalendar.calendar.helper.GlobalData;
 import com.thaidh.lovecalendar.calendar.model.DayMonthly;
 import com.thaidh.lovecalendar.calendar.model.Event;
 import com.thaidh.lovecalendar.database.EventRepository;
@@ -17,7 +16,7 @@ import com.thaidh.lovecalendar.database.EventRepository;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -28,8 +27,8 @@ public class MonthlyCalendarImpl {
     private final int DAYS_CNT;
     private final String YEAR_PATTERN;
     private final String mToday;
-    private ArrayList mEvents;
-    private ArrayList days;
+    private static HashMap<String, ArrayList<Event>> dayEventsMap = new HashMap();
+    private ArrayList<DayMonthly> days;
     private boolean mFilterEventTypes;
     
     public DateTime mTargetDate;
@@ -45,7 +44,6 @@ public class MonthlyCalendarImpl {
         this.YEAR_PATTERN = "YYYY";
         String var10001 = new DateTime().toString(Formatter.DAYCODE_PATTERN);
         this.mToday = var10001;
-        this.mEvents = new ArrayList();
         this.days = new ArrayList(this.DAYS_CNT);
         this.mFilterEventTypes = true;
     }
@@ -58,74 +56,83 @@ public class MonthlyCalendarImpl {
         this.mFilterEventTypes = var1;
     }
 
-    public void updateMonthlyCalendar( DateTime targetDate, boolean filterEventTypes) {
+    public void loadEvent(DateTime targetDate, boolean filterEventTypes) {
         this.mFilterEventTypes = filterEventTypes;
         this.mTargetDate = targetDate;
-        DateTime var10000 = this.mTargetDate;
+        DateTime dateTime = this.mTargetDate;
+        int startTS = DateTimeKt.seconds(dateTime.minusMonths(1));
+        int endTS = DateTimeKt.seconds(dateTime.plusMonths(1));
 
-        int startTS = DateTimeKt.seconds(var10000.minusMonths(1));
-        var10000 = this.mTargetDate;
-
-        int endTS = DateTimeKt.seconds(var10000.plusMonths(1));
-
-
-//        EventRepository.mEventQuery.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                for (DataSnapshot eventSnapshot: dataSnapshot.getChildren()) {
-//                    Event event = eventSnapshot.getValue(Event.class);
-//                    Log.i("AAAAAA", "onDataChange: " + event.getType() + " " + event.getStartTime());
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
-
-        EventRepository.mEventQuery.addChildEventListener(new ChildEventListener() {
+        new Thread(new Runnable() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                for (DataSnapshot eventSnapshot: dataSnapshot.getChildren()) {
-                    Event event = dataSnapshot.getValue(Event.class);
-                    Log.i("AAAAAA", "onChildAdded: " + event.getType() + " " + event.getStartTime());
-//                }
+            public void run() {
+                EventRepository.mEventQuery.addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        Event event = dataSnapshot.getValue(Event.class);
+                        handleAddEventToMap(event);
+                        Log.i("AAAAAA", "onChildAdded: " + event.getType() + " " + event.getStartTime());
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
+        }).start();
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+    }
 
+    void handleAddEventToMap(Event event) {
+        DateTime eventStart = Formatter.getDateTimeFromTS(event.getStartTime());
+        DateTime eventEnd = Formatter.getDateTimeFromTS(event.getEndTime());
+        String endCode = Formatter.getDayCodeFromDateTime(eventEnd);
+
+        DateTime currDay = eventStart;
+        String dayCode = Formatter.getDayCodeFromDateTime(eventStart);
+
+        ArrayList<Event> currDayEvents = dayEventsMap.get(dayCode);
+        if (currDayEvents == null) {
+            currDayEvents = new ArrayList();
+            dayEventsMap.put(dayCode, currDayEvents);
+        } else {
+            for (Event curEvent : currDayEvents) {
+                if (curEvent.getType() == event.getType() && curEvent.getStartTime() == event.getStartTime() && curEvent.getEndTime() == event.getEndTime()) { // need ignore
+                    return;
+                }
             }
+        }
+        currDayEvents.add(event);
 
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
+        while (!Formatter.getDayCodeFromDateTime(currDay).equals(endCode)) {
+            currDay = currDay.plusDays(1);
+            dayCode = Formatter.getDayCodeFromDateTime(currDay);
+            currDayEvents = dayEventsMap.get(dayCode);
+            if (currDayEvents == null) {
+                currDayEvents = new ArrayList();
+                dayEventsMap.put(dayCode, currDayEvents);
             }
+            currDayEvents.add(event);
 
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+        }
 
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-//        DBHelper.getEvents$default(GlobalData.getDbHelper(this.mContext), startTS, endTS, 0, (Function1)(new Function1() {
-//            // $FF: synthetic method
-//            // $FF: bridge method
-//            public Object invoke(Object var1) {
-//                this.invoke((List)var1);
-//                return Unit.INSTANCE;
-//            }
-//
-//            public final void invoke( List it) {
-//                MonthlyCalendarImpl.this.gotEvents((ArrayList)it);
-//            }
-//        }), 4, (Object)null);
+        markDaysWithEvents();
     }
 
     public final void getDays() {
@@ -187,92 +194,23 @@ public class MonthlyCalendarImpl {
             }
         }
 
-        if(this.mEvents.isEmpty()) {
-            this.mCallback.updateMonthlyCalendar(this.getMonthName(), (List)this.days);
+        if(dayEventsMap.isEmpty()) {
+            this.mCallback.updateMonthlyCalendar(this.getMonthName(), this.days);
         } else {
-            this.markDaysWithEvents(this.days);
+            this.markDaysWithEvents();
         }
 
     }
 
-    private final void markDaysWithEvents(final ArrayList days) {
-        //todo handle mark event
-//        GlobalData.getDbHelper(this.mContext).getEventTypes((Function1)(new Function1() {
-//            // $FF: synthetic method
-//            // $FF: bridge method
-//            public Object invoke(Object var1) {
-//                this.invoke((ArrayList)var1);
-//                return Unit.INSTANCE;
-//            }
-//
-//            public final void invoke( ArrayList itx) {
-//                Intrinsics.checkParameterIsNotNull(itx, "it");
-//                HashMap dayEvents = new HashMap();
-//                Iterable $receiver$iv = (Iterable)MonthlyCalendarImpl.this.mEvents;
-//                Iterator var4 = $receiver$iv.iterator();
-//
-//                Object element$iv;
-//                while(var4.hasNext()) {
-//                    element$iv = var4.next();
-//                    Event itxx = (Event)element$iv;
-//                    DateTime startDateTime = Formatter.INSTANCE.getDateTimeFromTS(itxx.getStartTS());
-//                    DateTime endDateTime = Formatter.INSTANCE.getDateTimeFromTS(itxx.getEndTS());
-//                    String endCode = Formatter.INSTANCE.getDayCodeFromDateTime(endDateTime);
-//                    DateTime currDay = startDateTime;
-//                    String dayCode = Formatter.INSTANCE.getDayCodeFromDateTime(startDateTime);
-//                    ArrayList var10000 = (ArrayList)dayEvents.get(dayCode);
-//                    if(var10000 == null) {
-//                        var10000 = new ArrayList();
-//                    }
-//
-//                    ArrayList var12 = var10000;
-//                    var12.add(itxx);
-//                    dayEvents.put(dayCode, var12);
-//
-//                    while(Intrinsics.areEqual(Formatter.INSTANCE.getDayCodeFromDateTime(currDay), endCode) ^ true) {
-//                        DateTime var23 = currDay.plusDays(1);
-//                        Intrinsics.checkExpressionValueIsNotNull(var23, "currDay.plusDays(1)");
-//                        currDay = var23;
-//                        dayCode = Formatter.INSTANCE.getDayCodeFromDateTime(currDay);
-//                        var10000 = (ArrayList)dayEvents.get(dayCode);
-//                        if(var10000 == null) {
-//                            var10000 = new ArrayList();
-//                        }
-//
-//                        var12 = var10000;
-//                        var12.add(itxx);
-//                        dayEvents.put(dayCode, var12);
-//                    }
-//                }
-//
-//                $receiver$iv = (Iterable)days;
-//                Collection destination$iv$iv = (Collection)(new ArrayList());
-//                Iterator var19 = $receiver$iv.iterator();
-//
-//                while(var19.hasNext()) {
-//                    Object element$iv$iv = var19.next();
-//                    DayMonthly it = (DayMonthly)element$iv$iv;
-//                    if(dayEvents.keySet().contains(it.getCode())) {
-//                        destination$iv$iv.add(element$iv$iv);
-//                    }
-//                }
-//
-//                $receiver$iv = (Iterable)((List)destination$iv$iv);
-//
-//                Object var10001;
-//                DayMonthly itxxx;
-//                for(var4 = $receiver$iv.iterator(); var4.hasNext(); itxxx.setDayEvents((ArrayList)var10001)) {
-//                    element$iv = var4.next();
-//                    itxxx = (DayMonthly)element$iv;
-//                    var10001 = dayEvents.get(itxxx.getCode());
-//                    if(var10001 == null) {
-//                        Intrinsics.throwNpe();
-//                    }
-//                }
-//
-//                MonthlyCalendarImpl.this.getMCallback().updateMonthlyCalendar(MonthlyCalendarImpl.this.getMonthName(), (List)days);
-//            }
-//        }));
+    private void markDaysWithEvents() {
+        Log.e("AAAAAAAA", "markDaysWithEvents: ");
+        for (DayMonthly dayMonthly: days) {
+            if (dayEventsMap.containsKey(dayMonthly.code)) {
+                dayMonthly.setEvents(dayEventsMap.get(dayMonthly.code));
+            }
+        }
+
+        MonthlyCalendarImpl.this.getMCallback().updateMonthlyCalendar(MonthlyCalendarImpl.this.getMonthName(), days);
     }
 
     private boolean isToday(DateTime targetDate, int curDayInMonth) {
@@ -295,35 +233,7 @@ public class MonthlyCalendarImpl {
         return month;
     }
 
-    private void gotEvents(ArrayList events) {
-        ArrayList var2;
-        if(this.mFilterEventTypes) {
-            //todo filter event
-//            List var10001 = GlobalData.getFilteredEvents(this.mContext, (List)events);
-//
-//            var2 = (ArrayList)var10001;
-        } else {
-            var2 = events;
-        }
-
-//        this.mEvents = var2;
-        this.getDays();
-    }
-
-    
     public final MonthlyCalendar getMCallback() {
         return this.mCallback;
-    }
-
-    
-    public final Context getMContext() {
-        return this.mContext;
-    }
-
-
-
-    // $FF: synthetic method
-    public static final void access$setMEvents$p(MonthlyCalendarImpl $this,  ArrayList var1) {
-        $this.mEvents = var1;
     }
 }

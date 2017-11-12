@@ -12,7 +12,7 @@ public class DayMonthly {
     public boolean isToday;
     public String code;
     public int weekOfYear;
-    ArrayList<Event> eventList;
+    public ArrayList<Event> eventList;
 
     public DayMonthly(int value, boolean isThisMonth, boolean isToday, String code, int weekOfYear, ArrayList<Event> eventList) {
         this.value = value;
@@ -24,8 +24,18 @@ public class DayMonthly {
     }
 
     public boolean hasEvent() {
-        //todo implment event
-        return false;
+        return eventList != null & !eventList.isEmpty();
+    }
+
+    public void setEvents(ArrayList<Event> events) {
+        eventList = events;
+    }
+
+    public Event getLastEvent() {
+        if (hasEvent()) {
+            return eventList.get(eventList.size() - 1);
+        }
+        return null;
     }
 }
 

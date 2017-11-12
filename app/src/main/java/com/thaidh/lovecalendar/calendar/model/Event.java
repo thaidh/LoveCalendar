@@ -1,6 +1,7 @@
 package com.thaidh.lovecalendar.calendar.model;
 
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.thaidh.lovecalendar.R;
 
 /**
  * Created by thaidh on 10/15/17.
@@ -42,5 +43,43 @@ public class Event {
 
     public long getEndTime() {
         return endTime;
+    }
+
+    public static int getImageResource(int eventType) {
+        int id;
+        switch (eventType) {
+            default:
+            case Event.TYPE_BLEEDING:
+                id = R.drawable.icon_bleeding;
+                break;
+            case Event.TYPE_SPOTTING:
+                id = R.drawable.icon_spotting;
+                break;
+            case Event.TYPE_DRY_INFERTILE:
+                id = R.drawable.icon_dry_infertile;
+                break;
+            case Event.TYPE_INFERTILE:
+                id = R.drawable.icon_infertile;
+                break;
+            case Event.TYPE_POSSIBLY_FERTILE:
+                id = R.drawable.icon_possibly_fertile;
+                break;
+            case Event.TYPE_PEAK:
+                id = R.drawable.icon_peak;
+                break;
+            case Event.TYPE_PEAK_AFTER_1:
+                id = R.drawable.icon_peak_after_1;
+                break;
+            case Event.TYPE_PEAK_AFTER_2:
+                id = R.drawable.icon_peak_after_2;
+                break;
+            case Event.TYPE_PEAK_AFTER_3:
+                id = R.drawable.icon_peak_after_3;
+                break;
+            case Event.TYPE_INFERCOURSE:
+                id = R.drawable.icon_infercourse;
+                break;
+        }
+        return id;
     }
 }

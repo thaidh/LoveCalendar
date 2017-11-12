@@ -16,20 +16,26 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.thaidh.lovecalendar.R;
+import com.thaidh.lovecalendar.calendar.helper.Formatter;
 import com.thaidh.lovecalendar.calendar.helper.GlobalData;
 import com.thaidh.lovecalendar.calendar.model.Event;
 import com.thaidh.lovecalendar.database.EventRepository;
 import com.thaidh.lovecalendar.dialog.IconPickerBottomSheet;
 
+import org.joda.time.DateTime;
+
 public class EventComposeActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = EventComposeActivity.class.getSimpleName();
 
+    public static final String EXTRA_DAY_CODE = "EXTRA_DAY_CODE";
 
 
     private Toolbar toolbar;
     private int eventType = Event.TYPE_BLEEDING;
     ImageView previewIcon;
+    DateTime currDateTime;
+    String code;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +47,14 @@ public class EventComposeActivity extends AppCompatActivity implements View.OnCl
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setupToolbar();
+
+        currDateTime = new DateTime();
+        Bundle extras = getIntent().getExtras();
+        if (extras.containsKey(EXTRA_DAY_CODE)) {
+            code = extras.getString(EXTRA_DAY_CODE);
+            currDateTime = Formatter.getDateTimeFromCode(code);
+            Log.i(TAG, "dayCode :" +  code);
+        }
 
     }
 
@@ -71,7 +85,7 @@ public class EventComposeActivity extends AppCompatActivity implements View.OnCl
     }
 
     void submitEvent() {
-        Event event = new Event(eventType, System.currentTimeMillis(), System.currentTimeMillis() + 3600 * 1000);
+        Event event = new Event(eventType, currDateTime.getMillis(), currDateTime.getMillis());
 
         EventRepository.mEventQuery.getRef().push().setValue(event, new DatabaseReference.CompletionListener() {
             @Override
@@ -79,7 +93,8 @@ public class EventComposeActivity extends AppCompatActivity implements View.OnCl
                 if (error != null) {
                     Log.e(TAG, "Failed to write message", error.toException());
                 } else {
-
+                    Log.e(TAG, "Success write message: "  + eventType + " at :" + code);
+                    finish();
                 }
             }
         });
@@ -100,38 +115,7 @@ public class EventComposeActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void updatePreviewIcon() {
-        switch (eventType) {
-            case Event.TYPE_BLEEDING:
-                previewIcon.setImageResource(R.drawable.icon_bleeding);
-                break;
-            case Event.TYPE_SPOTTING:
-                previewIcon.setImageResource(R.drawable.icon_spotting);
-                break;
-            case Event.TYPE_DRY_INFERTILE:
-                previewIcon.setImageResource(R.drawable.icon_dry_infertile);
-                break;
-            case Event.TYPE_INFERTILE:
-                previewIcon.setImageResource(R.drawable.icon_infertile);
-                break;
-            case Event.TYPE_POSSIBLY_FERTILE:
-                previewIcon.setImageResource(R.drawable.icon_possibly_fertile);
-                break;
-            case Event.TYPE_PEAK:
-                previewIcon.setImageResource(R.drawable.icon_peak);
-                break;
-            case Event.TYPE_PEAK_AFTER_1:
-                previewIcon.setImageResource(R.drawable.icon_peak_after_1);
-                break;
-            case Event.TYPE_PEAK_AFTER_2:
-                previewIcon.setImageResource(R.drawable.icon_peak_after_2);
-                break;
-            case Event.TYPE_PEAK_AFTER_3:
-                previewIcon.setImageResource(R.drawable.icon_peak_after_3);
-                break;
-            case Event.TYPE_INFERCOURSE:
-                previewIcon.setImageResource(R.drawable.icon_infercourse);
-                break;
-        }
+        previewIcon.setImageResource(Event.getImageResource(eventType));
     }
 
     @Override

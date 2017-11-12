@@ -144,6 +144,10 @@ public class Formatter {
         return new DateTime((long)ts * 1000L, DateTimeZone.getDefault());
     }
 
+    public static DateTime getDateTimeFromTS(long ts) {
+        return new DateTime(ts, DateTimeZone.getDefault());
+    }
+
     public static String getMonthName( Context context, int id) {
         return context.getResources().getStringArray(R.array.months)[id - 1];
     }

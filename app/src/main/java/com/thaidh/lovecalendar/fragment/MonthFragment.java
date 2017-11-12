@@ -1,6 +1,7 @@
 package com.thaidh.lovecalendar.fragment;
 
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
@@ -14,16 +15,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.thaidh.lovecalendar.R;
+import com.thaidh.lovecalendar.activity.EventComposeActivity;
 import com.thaidh.lovecalendar.calendar.MonthlyCalendar;
 import com.thaidh.lovecalendar.calendar.MonthlyCalendarImpl;
 import com.thaidh.lovecalendar.calendar.helper.GlobalData;
 import com.thaidh.lovecalendar.calendar.helper.Formatter;
 import com.thaidh.lovecalendar.calendar.model.DayMonthly;
+import com.thaidh.lovecalendar.calendar.model.Event;
 import com.thaidh.lovecalendar.customview.MyTextView;
 
 import java.util.List;
@@ -128,11 +132,7 @@ public class MonthFragment extends Fragment implements MonthlyCalendar {
 
         mCalendar.mTargetDate = Formatter.getDateTimeFromCode(mDayCode);
         mCalendar.getDays();    // prefill the screen asap, even if without events
-        updateCalendar();
-    }
-
-    private void updateCalendar() {
-        mCalendar.updateMonthlyCalendar(Formatter.getDateTimeFromCode(mDayCode), true);
+        mCalendar.loadEvent(Formatter.getDateTimeFromCode(mDayCode), true);
     }
 
     private void setupLabels() {
@@ -188,20 +188,40 @@ public class MonthFragment extends Fragment implements MonthlyCalendar {
 
             LinearLayout ll = mHolder.findViewById(getResources().getIdentifier(String.format("day_%d", i), "id", mPackageName));
             if (ll != null) {
+                ll.setBackgroundResource(R.drawable.transparent_button);
+                final DayMonthly day = days.get(i);
 
                 ll.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        //todo open day
-//                    openDay(day.code);
+                        openDay(day.code);
                     }
                 });
-                DayMonthly day = days.get(i);
+
 
                 ll.removeAllViews();
                 addDayNumber(day, ll);
-//                addDayEvents(day, this)
+                addDayEvents(day, ll);
             }
+        }
+    }
+
+    private void openDay(String code) {
+        Intent intent = new Intent(getActivity(), EventComposeActivity.class);
+        intent.putExtra(EventComposeActivity.EXTRA_DAY_CODE, code);
+        startActivity(intent);
+    }
+
+    private void addDayEvents(DayMonthly day, LinearLayout ll) {
+        if (day.hasEvent()) {
+            Event event = day.getLastEvent();
+            ImageView icon = new ImageView(getContext());
+            icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            icon.setImageResource(Event.getImageResource(event.getType()));
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(getResources().getDimensionPixelSize(R.dimen.icon_width_small), getResources().getDimensionPixelSize(R.dimen.icon_height_small));
+            layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
+            layoutParams.topMargin = getResources().getDimensionPixelSize(R.dimen.normal_margin);
+            ll.addView(icon, layoutParams);
         }
     }
 
