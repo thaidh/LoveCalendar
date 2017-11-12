@@ -63,40 +63,34 @@ public class MonthlyCalendarImpl {
         int startTS = DateTimeKt.seconds(dateTime.minusMonths(1));
         int endTS = DateTimeKt.seconds(dateTime.plusMonths(1));
 
-        new Thread(new Runnable() {
+        EventRepository.mEventQuery.addChildEventListener(new ChildEventListener() {
             @Override
-            public void run() {
-                EventRepository.mEventQuery.addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        Event event = dataSnapshot.getValue(Event.class);
-                        handleAddEventToMap(event);
-                        Log.i("AAAAAA", "onChildAdded: " + event.getType() + " " + event.getStartTime());
-                    }
-
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                    }
-
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                    }
-
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Event event = dataSnapshot.getValue(Event.class);
+                handleAddEventToMap(event);
+                Log.i("AAAAAA", "onChildAdded: " + event.getType() + " " + event.getStartTime());
             }
-        }).start();
 
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     void handleAddEventToMap(Event event) {

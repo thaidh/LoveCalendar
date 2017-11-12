@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> codes = getMonths(targetDay);
         pagerAdapter = new MyMonthPagerAdapter(getSupportFragmentManager(), codes);
         mainViewPager.setAdapter(pagerAdapter);
+        mainViewPager.setOffscreenPageLimit(1);
         int mDefaultMonthlyPage = codes.size() / 2;
         mainViewPager.setCurrentItem(mDefaultMonthlyPage);
         mainViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {

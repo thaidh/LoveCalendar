@@ -85,21 +85,24 @@ public class EventComposeActivity extends AppCompatActivity implements View.OnCl
     }
 
     void submitEvent() {
-        Event event = new Event(eventType, currDateTime.getMillis(), currDateTime.getMillis());
 
-        EventRepository.mEventQuery.getRef().push().setValue(event, new DatabaseReference.CompletionListener() {
+        new Thread(new Runnable() {
             @Override
-            public void onComplete(DatabaseError error, DatabaseReference reference) {
-                if (error != null) {
-                    Log.e(TAG, "Failed to write message", error.toException());
-                } else {
-                    Log.e(TAG, "Success write message: "  + eventType + " at :" + code);
-                    finish();
-                }
+            public void run() {
+                Event event = new Event(eventType, currDateTime.getMillis(), currDateTime.getMillis());
+                EventRepository.mEventQuery.getRef().push().setValue(event, new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError error, DatabaseReference reference) {
+                        if (error != null) {
+                            Log.e(TAG, "Failed to write message", error.toException());
+                        } else {
+                            Log.e(TAG, "Success write message: "  + eventType + " at :" + code);
+                            finish();
+                        }
+                    }
+                });
             }
-        });
-
-
+        }).start();
     }
 
     void showIconPickerDialog() {
